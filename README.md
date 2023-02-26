@@ -11,12 +11,14 @@ pip install -r requirements.txt
 The AKI multimodal prediction model is built upon AUTOGLUON
 
 ### Install autogluon
-> Use can see details in website https://auto.gluon.ai/dev/index.html#installation
+> Requirements.text already includes installation. However, use can see details in website https://auto.gluon.ai/dev/index.html#installation
 
 > and https://auto.gluon.ai/dev/tutorials/multimodal/index.html
 ```
 pip install autogluon 
 ```
+### Install cuML
+> See datils in website https://github.com/rapidsai/cuml
 
 ### Run model
 > Specify if your are running for SNUH/SNUH_test/KMC data in -run
