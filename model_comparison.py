@@ -5,12 +5,12 @@ import numpy as np
 import stat_util as st
 from sklearn.metrics import average_precision_score
 
-
+# final output folder from model.py
 folder =  "final_output0224/SNUH/" 
 
 metrics = ['f1', 'auroc', 'sensit','speci']
 
-
+#save path for model comparison
 save_path = "./final_output0224/model_comparison"
 os.makedirs(save_path, exist_ok=True)
     
