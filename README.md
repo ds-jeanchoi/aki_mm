@@ -11,7 +11,9 @@ pip install -r requirements.txt
 The AKI multimodal prediction model is built upon AUTOGLUON
 
 ### Install autogluon
-Use can see details in website https://auto.gluon.ai/dev/tutorials/multimodal/index.html
+Use can see details in website 
+https://auto.gluon.ai/dev/index.html#installation
+https://auto.gluon.ai/dev/tutorials/multimodal/index.html
 ```
 pip install autogluon 
 ```
