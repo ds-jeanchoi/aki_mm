@@ -17,3 +17,20 @@ https://auto.gluon.ai/dev/tutorials/multimodal/index.html
 ```
 pip install autogluon 
 ```
+
+### Run model
+> Specify if your are running for SNUH/SNUH_test/KMC data in -run
+> Specify input file path in -input 
+```
+python model.py -run "SNUH" -input "./input"
+```
+
+### Run model with no text
+```
+python notext_model.py -run "SNUH" -input "./input"
+```
+
+### Run ML model 
+```
+python cu_model.py -run "SNUH" -input "./input"
+```
