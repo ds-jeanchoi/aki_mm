@@ -20,6 +20,7 @@ pip install autogluon
 
 ### Run model
 > Specify if your are running for SNUH/SNUH_test/KMC data in -run
+
 > Specify input file path in -input 
 ```
 python model.py -run "SNUH" -input "./input"
