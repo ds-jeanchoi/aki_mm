@@ -21,7 +21,7 @@ pip install autogluon
 > See datils in website https://github.com/rapidsai/cuml
 
 ### Run model
-> Specify if your are running for SNUH/SNUH_test/KMC data in -run
+> Specify which data your are running for : "SNUH", "SNUH_test", "KMC"  in -run
 
 > Specify input file path in -input 
 ```
