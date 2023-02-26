@@ -1,4 +1,4 @@
-# aki_mm
+# AKI prediction using multimodal data
 
 The AKI multimodal prediction model works on python >= 3.8
 
