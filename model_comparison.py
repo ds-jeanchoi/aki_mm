@@ -19,7 +19,7 @@ os.makedirs(save_path, exist_ok=True)
 for m in metrics :
     print(m)
     input_path =  str(folder) + "/" +str(m)
-    d = pd.read_csv(input_path+'/pred.csv')
+    d = pd.read_csv(input_path+'/auc.csv')
     cols = d.columns
     model_1 = []
     model_2 = []
