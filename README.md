@@ -48,7 +48,7 @@ python cu_model.py -run "SNUH" -input "./input"
 
 
 ### Results 
-
+- selected best scores among 5 metrics based on f1-score
 |no|batch-size|learning-rate|precision|weight-deacy|metric|f1-score|AUROC|AUPRC|
 |------|---|---|--|--|--|--|--|--|
 |1|128|1.0e-4|16|1.0e-3|specificity|**0.507**|0.905|**0.501**|
