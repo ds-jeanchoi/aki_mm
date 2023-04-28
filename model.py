@@ -2,23 +2,30 @@ import pandas as pd
 from autogluon.multimodal import MultiModalPredictor
 from calibration_module.utils import compute_calibration_summary
 from calibration_module.calibrator import  PlattCalibrator
+from sklearn.calibration import IsotonicRegression
+import pickle
+import joblib
 from time import time, strftime, localtime
 import os
+import json
 import argparse
 
 
 #arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("-run", "--run", dest="run", action="store")
-parser.add_argument("-input", "--input", dest="input", action="store")
+parser.add_argument("-task", "--task", dest="task", action="store")
 args = parser.parse_args()
 
 
 
 #SNUH input path
-path =args.input
+path  ="./new_input" 
+task = args.task
+#=args.input
 #"./org_input/"
-output_path = './final_output/'
+model_num = "m13"
+output_path = './final_output_0428/'
 
 
 run = args.run
@@ -27,30 +34,47 @@ run = args.run
 
 
 #hyper parameter
-hyp = {"model.names": ["hf_text", "categorical_mlp", "numerical_mlp", "fusion_mlp"],
+
+
+#import params
+# config_path = './hyp.json'
+# with open(config_path) as f:
+#     hyp  = json.load(f)
+
+hyp =  {"model.names": ["hf_text", "categorical_mlp", "numerical_mlp", "fusion_mlp"],
     "data.text.normalize_text": False,
     "data.categorical.convert_to_text": False,
+    "env.batch_size": 128,
+    #"env.precision": 32,
+    #"optimization.learning_rate": 1.0e-3,
+    "optimization.weight_decay": 1.0e-4,
     "optimization.max_epochs": 20}
 
 print(hyp)
 
+os.makedirs(output_path, exist_ok=True)
+
+with open(output_path+"hyperparams.json", "w") as json_file:
+    json.dump(hyp, json_file)
 
 
-
-metrics = { 'f1' : 'f1', 
-            'auroc' :'roc_auc',
-            'sensit' :'sensitivity', 
-            'speci' : 'specificity'
+metrics = {'f1' : 'f1' ,
+          # 'auroc' :'roc_auc'
+           'sensit' :'sensitivity', 
+           'speci' : 'specificity',
+           'AUPRC' :'average_precision'
         }
 
 #input
 df_train = pd.read_csv(path + "/train.csv")
-df_test = pd.read_csv(path + "/test.csv")
+df_val = pd.read_csv(path + "/val.csv")
+df_cal = pd.read_csv(path+ "/cal.csv")
 
 
 drop = ['is_ga', 'multiple_within_7days_yes', 'Others']
 df_train = df_train.drop(columns=drop)
-df_test = df_test.drop(columns=drop)
+df_val = df_val.drop(columns=drop)
+df_cal = df_cal.drop(columns =drop)
 
 cols = df_train.columns
 input_cols = cols.drop('new_total_aki')
@@ -59,14 +83,14 @@ label_col = 'new_total_aki'
 
 if run in ('SNUH' ,  'SNUH_test') :
 
-    df_val = pd.read_csv(path + "/val.csv")
-    df_val= df_val.drop(columns=drop)
+    df_test = pd.read_csv(path + "/test.csv")
+    df_test= df_test.drop(columns=drop)
 
 elif run == 'KMC' :
 
     drop = ['Others','sex']
-    df_val = pd.read_csv(path + "/kmc_val.csv")
-    df_val = df_val.drop(columns = drop)
+    df_test = pd.read_csv(path + "/kmc_test.csv")
+    df_test = df_test.drop(columns = drop)
 
 else :
     print("input run error")
@@ -80,6 +104,7 @@ print(feature_columns)
 train_df = df_train
 dev_df = df_val[feature_columns]
 test_df = df_test[feature_columns]
+cal_df = df_cal[feature_columns]
 
 print("train",train_df.columns)
 print("val",dev_df.columns)
@@ -88,7 +113,7 @@ print("test",test_df.columns)
 print('Number of training samples:', len(train_df))
 print('Number of dev samples:', len(dev_df))
 print('Number of test samples:', len(test_df))
-
+print('Number of calib  samples:', len(cal_df))
 
 
 # Main model
@@ -102,8 +127,8 @@ for name, metric in metrics.items():
     print(">>>>starting at: ", strftime('%Y-%m-%d %I:%M:%S %p', tm))
     start = time()
 
-    path_model_name = 'textall+normal+batch56+conv'+name
-
+    path_model_name = 'src2/'+ model_num +name
+    #textall+normal+batch56+conv
     print("[fitting",name, "start]")
 
 #train MM
@@ -114,13 +139,13 @@ for name, metric in metrics.items():
     else :
         print("--------no existing file found, new train start--------")
         predictor = MultiModalPredictor(label='new_total_aki', eval_metric=metric, path = path_model_name)  #alldata+metric
-        predictor.fit(train_df, hyperparameters=hyp )
+        predictor.fit(train_df, tuning_data = dev_df,  hyperparameters=hyp )
     print(predictor.fit_summary(verbosity=4, show_plot=True))
 
     print(name, "train complete, start evaluation")
 
 #result
-    performance = predictor.evaluate(test_df, metrics=['roc_auc','f1', 'specificity', 'recall', 'precision' ,'accuracy'])
+    performance = predictor.evaluate(test_df, metrics=['roc_auc','f1', 'recall', 'precision' ,'accuracy'])
     print(performance)
 
     eval_dict= {}
@@ -131,7 +156,7 @@ for name, metric in metrics.items():
         
         df_groups = {
             'train': train_df,
-            'test': test_df }
+            'test': dev_df }   #val set
         
         for df_name, df_group in df_groups.items():
         
@@ -147,11 +172,13 @@ for name, metric in metrics.items():
                             'y_pred' : pred_df })
 
     elif task =='eval' :
-#val data
-        labels_val = dev_df[label_col].values
-        pred_val =predictor.predict(dev_df[input_cols])
 
-        proba_val  = predictor.predict_proba(dev_df[input_cols]).iloc[:, 1]
+#test data
+#
+        labels_val = test_df[label_col].values
+        pred_val =predictor.predict(test_df[input_cols])
+
+        proba_val  = predictor.predict_proba(test_df[input_cols]).iloc[:, 1]
 
         list = 'transformer' + '_val'
 
@@ -160,19 +187,44 @@ for name, metric in metrics.items():
                             score_col: proba_val,
                             'y_pred' : pred_val })
 #platt scaling
+#fit with cal set, predict with test
+        load_path = output_path+'SNUH/'+str(name)
+    
+        labels_cal = cal_df[label_col].values
+        proba_cal = predictor.predict(cal_df[input_cols])
+        
+        
+        if run == "SNUH" :
+            platt = PlattCalibrator(log_odds=True)
+            platt.fit(proba_cal.values, labels_cal)
+            
+            isotonic = IsotonicRegression(out_of_bounds='clip',
+                                      y_min=proba_cal.min(),
+                                      y_max=proba_cal.max())
+            isotonic.fit(proba_cal.values, labels_cal)
+            
+            # save model
+            joblib.dump(platt, save_path+'/platt.pkl')
+            joblib.dump(isotonic, save_path+'/isotonic.pkl')
+        
+        if run == "KMC" :
+            platt = joblib.load(load_path+'/platt.pkl')
+            isotonic = joblib.load(load_path+'/isotonic.pkl')
+            
+        platt_probs = platt.predict(proba_val.values)
+        isotonic_probs = isotonic.predict(proba_val.values)
+        # platt scale
         list =  'transformer' + '+platt'
-        labels_test = test_df[label_col].values
-        proba_test =predictor.predict_proba(test_df[input_cols]).iloc[:, 1]
-        pred_test =predictor.predict(test_df[input_cols])
-
-        platt = PlattCalibrator(log_odds=True)
-        platt.fit(proba_val.values, labels_val)
-        platt_probs = platt.predict(proba_test.values)
-
         eval_dict[list] = pd.DataFrame({
-                                label_col: labels_test,
+                                label_col: labels_val,
                                 score_col: platt_probs,
-                                'y_pred' : pred_test })
+                                'y_pred' : pred_val })
+        # isotonic      
+        list =  'transformer' + '+isotonic'
+        eval_dict[list] = pd.DataFrame({
+                                label_col: labels_val,
+                                score_col: isotonic_probs,
+                                'y_pred' : pred_val })
 
 
 
@@ -180,17 +232,41 @@ for name, metric in metrics.items():
     n_bins = 15
     
 #proba    
-    if os.path.isfile(save_path+'/auc.csv') :
-        d = pd.read_csv(save_path+'/auc.csv')
-    else :
-        d = df_val['new_total_aki']
+#calibrated probability for optimal threshold
+    print(eval_dict.keys())
 
-    for key, value in eval_dict.items() :
-        if key.split("_")[-1] == 'val' :
+
+    if task  == 'test' :
+        if os.path.isfile(save_path+'/auc.csv') :
+            d = pd.read_csv(save_path+'/auc.csv')
+        else :
+            d = df_val['new_total_aki']
+            
+            
+            
+        for key, value in eval_dict.items() :
+            if key.split("_")[-1] == 'test' :
+
+                a  = pd.DataFrame(value['score'])
+                d = pd.concat([d, a.rename(columns={'score':key})], axis =1)
+    
+    
+    if task  == 'eval' :
+        if os.path.isfile(save_path+'/auc.csv') :
+            d = pd.read_csv(save_path+'/auc.csv')
+        else :
+            d = df_test['new_total_aki']
+
+        for key, value in eval_dict.items() :
             a  = pd.DataFrame(value['score'])
             d = pd.concat([d, a.rename(columns={'score':key})], axis =1)
+    
     d.to_csv(save_path+'/auc.csv', index=False)
-   
+
+
+    
+
+
 #prediction
 
     if os.path.isfile(save_path+'/pred.csv') :
