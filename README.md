@@ -29,12 +29,14 @@ python model.py -run "SNUH"
 ```
 
 ### Hyperparameters
+```
 hyp =  {"model.names": ["hf_text", "categorical_mlp", "numerical_mlp", "fusion_mlp"],
     "data.text.normalize_text": False,
-    "data.categorical.convert_to_text": False,
-    "env.batch_size": 56,
+    "data.categorical.convert_to_text": False,    
+    "env.batch_size": 128,
     "optimization.learning_rate": 1.0e-3,
     "optimization.max_epochs": 20}
+```
 
 ### Run model with no text
 ```
