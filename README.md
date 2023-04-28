@@ -49,9 +49,9 @@ python cu_model.py -run "SNUH" -input "./input"
 
 ### Results 
 
-|no|batch-size|learning-rate|precision|weight-deacy|metric|f1-score|AUPRC|AUROC|
+|no|batch-size|learning-rate|precision|weight-deacy|metric|f1-score|AUROC|AUPRC|
 |------|---|---|--|--|--|--|--|--|
-|1|128|1.0e-4|16|1.0e-3|specificity|**0.507**|**0.905**|0.501|
+|1|128|1.0e-4|16|1.0e-3|specificity|**0.507**|0.905|**0.501**|
 |2|128|5.0e-4|16|1.0e-3|f1|0.489|0.891|0.456|
 |3|128|5.0e-4|16|1.0e-4|auprc|0.480|0.891|0.406|
 |4|128|1.0e-3|16|1.0e-3|auprc|0.426|0.866|0.328|
