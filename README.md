@@ -51,6 +51,7 @@ python cu_model.py -run "SNUH"
 
 ### Results 
 - selected best scores among 5 metrics based on f1-score
+- 수정
 
 |no|batch-size|learning-rate|precision|weight-deacy|metric|f1-score|AUROC|AUPRC|
 |------|---|---|--|--|--|--|--|--|
