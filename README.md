@@ -21,11 +21,11 @@ pip install autogluon
 > See datils in website https://github.com/rapidsai/cuml
 
 ### Run model
-> Specify which data you are running for : "SNUH", "SNUH_test", "KMC"  in -run
+> Specify which data you are inferencing for : "SNUH", "KMC"  in -run
 
-> Specify input file path in -input 
+
 ```
-python model.py -run "SNUH" -input "./input"
+python model.py -run "SNUH"
 ```
 
 ### Hyperparameters
@@ -38,12 +38,12 @@ hyp =  {"model.names": ["hf_text", "categorical_mlp", "numerical_mlp", "fusion_m
 
 ### Run model with no text
 ```
-python notext_model.py -run "SNUH" -input "./input"
+python notext_model.py -run "SNUH" 
 ```
 
 ### Run ML model 
 ```
-python cu_model.py -run "SNUH" -input "./input"
+python cu_model.py -run "SNUH" 
 ```
 
 
