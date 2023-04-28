@@ -25,7 +25,7 @@ task = args.task
 #=args.input
 #"./org_input/"
 model_num = "m13"
-output_path = './final_output_0428/'
+output_path = './final_output_0428_1/'
 
 
 run = args.run
@@ -59,7 +59,7 @@ with open(output_path+"hyperparams.json", "w") as json_file:
 
 
 metrics = {'f1' : 'f1' ,
-          # 'auroc' :'roc_auc'
+           'auroc' :'roc_auc',
            'sensit' :'sensitivity', 
            'speci' : 'specificity',
            'AUPRC' :'average_precision'
@@ -204,12 +204,12 @@ for name, metric in metrics.items():
             isotonic.fit(proba_cal.values, labels_cal)
             
             # save model
-            joblib.dump(platt, save_path+'/platt.pkl')
-            joblib.dump(isotonic, save_path+'/isotonic.pkl')
+            joblib.dump(platt, save_path+'/transformer_platt.pkl')
+            joblib.dump(isotonic, save_path+'/transformer_isotonic.pkl')
         
         if run == "KMC" :
-            platt = joblib.load(load_path+'/platt.pkl')
-            isotonic = joblib.load(load_path+'/isotonic.pkl')
+            platt = joblib.load(load_path+'/transformer_platt.pkl')
+            isotonic = joblib.load(load_path+'/transformer_isotonic.pkl')
             
         platt_probs = platt.predict(proba_val.values)
         isotonic_probs = isotonic.predict(proba_val.values)

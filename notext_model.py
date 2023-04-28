@@ -16,7 +16,7 @@ parser.add_argument("-task", "--task", dest="task", action="store")
 args = parser.parse_args()
 
 
-output_path = './final_output_0428/'
+output_path = './final_output_0428_1/'
 
 task = args.task
 path = "./new_input"
@@ -182,12 +182,12 @@ for name, metric in metrics.items():
             isotonic.fit(proba_cal.values, labels_cal)
             
             # save model
-            joblib.dump(platt, save_path+'/platt.pkl')
-            joblib.dump(isotonic, save_path+'/isotonic.pkl')
+            joblib.dump(platt, save_path+'/transformer+notext_platt.pkl')
+            joblib.dump(isotonic, save_path+'/transformer+notext_isotonic.pkl')
         
         if run == "KMC" :
-            platt = joblib.load(load_path+'/platt.pkl')
-            isotonic = joblib.load(load_path+'/isotonic.pkl')
+            platt = joblib.load(load_path+'/transformer+notext_platt.pkl')
+            isotonic = joblib.load(load_path+'/transformer+notext_isotonic.pkl')
             
         platt_probs = platt.predict(proba_val.values)
         isotonic_probs = isotonic.predict(proba_val.values)
