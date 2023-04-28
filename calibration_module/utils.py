@@ -179,12 +179,29 @@ def compute_binary_score(
         }
     """
     auc = round(metrics.roc_auc_score(y_true, y_prob), round_digits)
-    log_loss = round(metrics.log_loss(y_true, y_prob), round_digits)
+#    log_loss = round(metrics.log_loss(y_true, y_prob), round_digits)
     brier_score = round(metrics.brier_score_loss(y_true, y_prob), round_digits)
 
     
     precision, recall, threshold = metrics.precision_recall_curve(y_true, y_prob)
     f1 = 2 * (precision * recall) / (precision + recall)
+    
+
+##############added #################
+    #new prediction using optimal threshold
+
+    cutoff  = list(np.arange(0.0,1.0,0.01))  #find optimal threshold between 0~1 by 0.01
+
+    l = {}
+    for c in cutoff :    
+        roc_predictions = [1 if i >= c else 0 for i in y_prob]
+        l.update({round(c,2): round(f1_score(y_true, roc_predictions),4)})
+
+    optimal_threshold = max(l, key=l.get)
+    y_pred = [1 if i >= optimal_threshold  else 0 for i in y_prob]
+
+####################################
+
     tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
     specificity = tn / (tn+fp)
     
@@ -198,7 +215,6 @@ def compute_binary_score(
     #print(mask)
     #massk =  pd.DataFrame(mask)
 
-    print(auprc)
 
 
     precision = precision_score(y_true, y_pred)
@@ -220,6 +236,7 @@ def compute_binary_score(
         'auprc' : round(auprc,3),
         'precision': round(precision,3),
     #    'recall': round(recall,3),
+        'threshold' : round(optimal_threshold,3) ,
         'sensitivity': round(sensitivity,3),
         'specificity' : round(specificity,3),
         'f1': round(f1,3),
@@ -282,7 +299,7 @@ def compute_calibration_summary(
     fig1, ax1 = plt.subplots(1)
     fig2, ax2 = plt.subplots(1)
     fig3, ax3 = plt.subplots(1)
-    
+    fig6, ax6 = plt.subplots(1)
     
     estimator_metrics = []
     for name, df_eval in eval_dict.items():
@@ -323,9 +340,11 @@ def compute_calibration_summary(
                                                                seed=42)
         score_prauc, ci_lower_prauc, ci_upper_prauc, scores_prauc = stat_util.score_ci(recalls, precisions, score_fun=auc)
 
-    #    plt.rcParams['figure.figsize'] = 30, 30
         #for non-platt: plot ax1, for platt data: plot ax2
-        if  name.split('+')[-1] != 'platt' :
+        
+        
+        if  name.split('+')[-1] not in ( 'platt', 'isotonic')  :
+        
             calibration_error = compute_calibration_error(
                 df_eval[label_col], df_eval[score_col], n_bins, round_digits)
 
@@ -338,8 +357,8 @@ def compute_calibration_summary(
             metrics_dict['auprc+ci'] = auprc_ci
             metrics_dict['calibration_error'] = calibration_error
             metrics_dict['name'] = new_name
-            metrics_dict['threshold'] = round(thresholds[np.argmax(tpr - fpr)],3)
-            # add threshold
+    #        metrics_dict['threshold'] = round(thresholds[np.argmax(tpr - fpr)],3)
+    # add threshold
             estimator_metrics.append(metrics_dict)
 
             ax1.plot(prob_pred, prob_true, 's-', label=new_name, linewidth=1.0)
@@ -351,15 +370,28 @@ def compute_calibration_summary(
             fig4, ax4 = belt.plot(confidences=[.8, .95], label= new_name)
             ax4.set_title('Calibration Curve,'+str(new_name), fontsize=20)
             fig4.savefig(save_plot_path + '/calib_belt_'+ str(new_name) +'.tif', dpi=300, bbox_inches='tight')
-
-        else :
+        # platt
+        elif name.split('+')[-1]== "platt" :
             # platt-scaled calibration belt
             belt = CalibrationBelt(df_eval[label_col].values, df_eval[score_col].values)
             fig5, ax5 = belt.plot(confidences=[.8, .95], label=new_name)
-            ax5.set_title('Calibration Curve,' + str(new_name), fontsize=20)
             ax5.set_title('platt-scaled calibration,' + str(new_name), fontsize=20)
             fig5.savefig(save_plot_path + '/platt_belt_' + str(new_name) + '.tif', dpi=300, bbox_inches='tight')
             plt.close(fig5)
+
+        else : #isotonic
+            ax6.plot(prob_pred, prob_true, 's-', label=new_name, linewidth=1.0)
+            ax6.plot([0, 1], [0, 1], 'k:', label='Perfectly calibrated')
+            ax6.set_xlabel('Prediction')
+            ax6.set_ylabel('Fraction of positives')
+            ax6.legend(loc='lower right', ncol=1)
+            ax6.set_title('isotonic calibration,' + str(new_name), fontsize=20)
+            fig6.savefig(save_plot_path + '/isotonic_reg_' + str(new_name) + '.tif', dpi=300, bbox_inches='tight')
+            plt.close(fig6)
+
+
+
+
 
     ax1.plot([0, 1], [0, 1], 'k:', label='perfect')
 
