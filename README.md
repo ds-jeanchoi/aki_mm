@@ -56,7 +56,7 @@ python cu_model.py -run "SNUH"
 |no|batch-size|learning-rate|precision|weight-deacy|metric|f1-score|AUROC|AUPRC|
 |------|---|---|--|--|--|--|--|--|
 |1|128|1.0e-4|16|1.0e-3|specificity|** 00**|0.905|**00 **|
-|2|128|1.0e-4|16|1.0e-4|specificity|** 00**|0.902|** 00**|
+|2|128|1.0e-4|16|1.0e-4|f1|**0.485**|0.904|**0.488**|
 |3|128|5.0e-4|16|1.0e-3|f1| |0.891||
 |4|128|5.0e-4|16|1.0e-4|auprc| |0.891||
 |5|128|1.0e-3|16|1.0e-3|auprc| |0.866||
