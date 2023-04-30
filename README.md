@@ -29,6 +29,8 @@ python model.py --run "SNUH"
 ```
 
 ### Hyperparameters
+- change the hyperparams to run the benchmark
+
 ```
 hyp =  {"model.names": ["hf_text", "categorical_mlp", "numerical_mlp", "fusion_mlp"],
     "data.text.normalize_text": False,
