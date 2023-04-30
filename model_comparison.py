@@ -6,30 +6,45 @@ import stat_util as st
 from sklearn.metrics import average_precision_score
 
 # final output folder from model.py
-folder =  "final_output0224/SNUH/" 
+folder =  "final_output_0429/SNUH/" 
 
-metrics = ['f1', 'auroc', 'sensit','speci']
+metrics = ['f1', 'auroc', 'sensit','speci', 'AUPRC']
 
 #save path for model comparison
-save_path = "./final_output0224/model_comparison"
+save_path = "./final_output_0429/model_comparison"
 os.makedirs(save_path, exist_ok=True)
     
 # AUROC delong test
+# compare model only in original probs(no calibrated probs used)
 
 for m in metrics :
     print(m)
     input_path =  str(folder) + "/" +str(m)
     d = pd.read_csv(input_path+'/auc.csv')
-    cols = d.columns
+    
+    print(d.columns)
+    
+    columns = d.columns
+    cols = []
+    for col in columns:
+        if col.split("_")[-1]=='val':
+            cols.append(col)
+    
+    #cols = d.columns
+    print(cols)
+    
     model_1 = []
     model_2 = []
     p_value = []
-    for i in range(1,7) :
-        for n in range(1,7) :
+    for i in range(1,6) :
+        for n in range(1,6) :
             if i == n :
                 pass
             else:
-                p = dl.delong_roc_test(d[cols[0]].values, d[cols[i]].values, d[cols[n]].values)[0][0]
+                p = dl.delong_roc_test(d['new_total_aki'].values, d[cols[i]].values, d[cols[n]].values)[0][0]
+                #model_1.append(cols[i])
+                #model_2.append(cols[n])
+                #print(cols[i].split("_")[0])
                 model_1.append(cols[i].split("_")[0])
                 model_2.append(cols[n].split("_")[0])
                 p_value.append(round(p,3))
@@ -52,20 +67,18 @@ confidence_level= 0.95
 
 for m in metrics :
     print(m)
-    input_path =  str(folder) + "/" +str(m)
-    d = pd.read_csv(input_path+'/auc.csv')
-    cols = d.columns
+#     input_path =  str(folder) + "/" +str(m)
+#     d = pd.read_csv(input_path+'/auc.csv')
+#     cols = d.columns
     model_1 = []
     model_2 = []
     p_value = []
-    for i in range(1,7) :
-        for n in range(1,7) :
+    for i in range(1,6) :
+        for n in range(1,6) :
             if i == n :
                 pass
             else:
-                
-                
-                p, z = st.pvalue(d[cols[0]].values, d[cols[i]].values, d[cols[n]].values,
+                p, z = st.pvalue(d['new_total_aki'].values, d[cols[i]].values, d[cols[n]].values,
                         score_fun=average_precision_score,
                         seed=42)
                 model_1.append(cols[i].split("_")[0])
