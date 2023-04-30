@@ -48,6 +48,11 @@ python notext_model.py --run "SNUH"
 python cu_model.py --run "SNUH" 
 ```
 
+### model comparison
+run model_comparison.py to get model comparison using delong/bootstrap
+
+### opitmal threhsold
+run new_threshold_result.py to get updated result with optimal threshold. it will produce new_threshold_result.csv
 
 ### Results 
 - selected best scores among 5 metrics based on f1-score
