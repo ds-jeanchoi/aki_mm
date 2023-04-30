@@ -190,15 +190,15 @@ def compute_binary_score(
 ##############added #################
     #new prediction using optimal threshold
 
-    cutoff  = list(np.arange(0.0,1.0,0.01))  #find optimal threshold between 0~1 by 0.01
+#     cutoff  = list(np.arange(0.0,1.0,0.01))  #find optimal threshold between 0~1 by 0.01
 
-    l = {}
-    for c in cutoff :    
-        roc_predictions = [1 if i >= c else 0 for i in y_prob]
-        l.update({round(c,2): round(f1_score(y_true, roc_predictions),4)})
+#     l = {}
+#     for c in cutoff :    
+#         roc_predictions = [1 if i >= c else 0 for i in y_prob]
+#         l.update({round(c,2): round(f1_score(y_true, roc_predictions),4)})
 
-    optimal_threshold = max(l, key=l.get)
-    y_pred = [1 if i >= optimal_threshold  else 0 for i in y_prob]
+#     optimal_threshold = max(l, key=l.get)
+#     y_pred = [1 if i >= optimal_threshold  else 0 for i in y_prob]
 
 ####################################
 
@@ -228,7 +228,7 @@ def compute_binary_score(
     print("recall", recall)
     print("precision", precision)
     
-    
+    optimal_threshold = 0
     
     #specificity =  cm[0,0]/(cm[0,0]+cm[0,1])
     return {
