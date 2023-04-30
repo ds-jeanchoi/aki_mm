@@ -40,12 +40,12 @@ hyp =  {"model.names": ["hf_text", "categorical_mlp", "numerical_mlp", "fusion_m
 
 ### Run model with no text
 ```
-python notext_model.py -run "SNUH" 
+python notext_model.py --run "SNUH" 
 ```
 
 ### Run ML model 
 ```
-python cu_model.py -run "SNUH" 
+python cu_model.py --run "SNUH" 
 ```
 
 
