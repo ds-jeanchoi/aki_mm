@@ -63,7 +63,7 @@ run new_threshold_result.py to get updated result with optimal threshold. it wil
 |no|batch-size|learning-rate|precision|weight-deacy|metric|f1-score|AUROC|AUPRC|
 |------|---|---|--|--|--|--|--|--|
 |1|128|1.0e-4|16|1.0e-3|f1|0.473|0.897|0.484|
-|2|128|1.0e-4|16|1.0e-4|f1|**0.485**|0.904|**0.488**|
+|2|128|1.0e-4|16|1.0e-4|f1|**0.485**|**0.904**|**0.488**|
 |3|128|1.0e-3|16|1.0e-3|f1|0.29|0.877|0.331|
 |4|56|1.0e-3|16|1.0e-3|f1|0.345 |0.88|0.417|
 |5|56|1.0e-4|16|1.0e-3|f1|0.454 |0.895|0.49|
