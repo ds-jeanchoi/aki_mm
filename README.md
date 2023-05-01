@@ -53,11 +53,11 @@ python cu_model.py --run "SNUH"
 python cu_model.py --run "KMC" 
 ```
 
-### model comparison
-run model_comparison.py to get model comparison using delong/bootstrap
+### Run model comparison
+Run model_comparison.py to get model comparison using delong/bootstrap. It will make the model_comparison folder under the output path.
 
-### opitmal threhsold
-run new_threshold_result.py to get updated result with optimal threshold. it will produce new_threshold_result.csv
+### Run opitmal threhsold
+Run new_threshold_result.py to get updated result with optimal threshold. The optimal threshold is calculated by whatever makes it the best f1-score. it will produce **new_threshold_result.csv**
 
 ### Results 
 - selected best scores among 5 metrics based on f1-score
