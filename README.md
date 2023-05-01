@@ -23,14 +23,14 @@ pip install autogluon
 
 ### Run model
 > Specify which data you are inferencing for : "SNUH", "KMC"  in -run
-
+It will produce tifs & metrics.csv.
 
 ```
 python model.py --run "SNUH"
 python model.py --run "KMC"
 ```
 
-### Hyperparameters
+#### Hyperparameters
 - change the hyperparams to run the benchmark
 
 ```
