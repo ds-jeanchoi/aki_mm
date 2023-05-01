@@ -3,6 +3,7 @@
 The AKI multimodal prediction model works on python >= 3.8
 
 ### Install requirments.text
+- Will be updated soon
 ```
 pip install -r requirements.txt
 ```
