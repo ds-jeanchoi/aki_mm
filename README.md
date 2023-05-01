@@ -26,6 +26,7 @@ pip install autogluon
 
 ```
 python model.py --run "SNUH"
+python model.py --run "KMC"
 ```
 
 ### Hyperparameters
